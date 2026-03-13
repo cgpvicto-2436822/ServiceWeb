@@ -1,4 +1,4 @@
-import pool from '../Config/db.js';
+import pool from '../Config/db_pg.js';
 
 const getPokemonWithId = async (id) => {
 
