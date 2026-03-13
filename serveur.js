@@ -15,9 +15,9 @@ const PORT = 3000;
 
 import router from './src/Routes/pokemon.route.js';
 
-app.use('/api/docs',
-        swaggerUi.serve,
-        swaggerUi.setup(swaggerDocument, swaggerOptions));
+// app.use('/api/docs',
+//         swaggerUi.serve,
+//         swaggerUi.setup(swaggerDocument, swaggerOptions));
 
 app.use('/api', router);
 // app.use('/api/salutations/hasard/:langue', salutationRouter);
