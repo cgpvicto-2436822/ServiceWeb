@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
 
 router.get('/pokemon/add', addPokemon);
 
-router.get("/users");
+router.get("/users", createUser);
 
 router.get('/pokemons', getPokemons);
 
