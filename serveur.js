@@ -1,8 +1,6 @@
 
 // Importer le module express
 import express from 'express';
-
-import swaggerUi from 'swagger-ui-express';
 import fs from 'fs';
 const swaggerDocument = JSON.parse(fs.readFileSync('./src/Config/Documentation.json', 'utf8'));
 const swaggerOptions = {
