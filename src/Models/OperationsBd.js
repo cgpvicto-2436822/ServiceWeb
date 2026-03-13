@@ -57,10 +57,10 @@ function addUserDb(nom, email, mdp, uuid) {
 }
 
 const getPokemonsFromDb = async () => {
-    const requete = `SELECT nom FROM pokemon`;
+    const requete = `SELECT nom FROM public.pokemon`;
     try {
         var liste = [];
-        const [resultats] = await pool.query(requete);
+        const resultats = await pool.query(requete);
         resultats.forEach(resultat => {
             liste.push({
                 nom: resultat.nom
