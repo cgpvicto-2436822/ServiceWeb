@@ -1,18 +1,16 @@
 import pool from '../Config/db_pg.js';
 
 const getPokemonWithId = async (id) => {
-
     const requete = `SELECT nom, type_primaire, type_secondaire, pv, attaque, defense
      FROM pokemon
-      WHERE id = ?`;
-    const params = [id]
+      WHERE id = $1`;
+    const params = [id];
 
     try {
-        const [resultats] = await pool.query(requete, params);
-        return resultats[0] ?? null;
+        const resultats = await pool.query(requete, params);
+        return resultats.rows[0] ?? null;
     } catch (erreur) {
-        console.log(`Erreur, code: ${erreur.code} sqlState ${erreur.sqlState} : 
-                    ${erreur.sqlMessage}`);
+        console.error(`Erreur PostgreSQL : ${erreur.message}`);
         throw erreur;
     }
 };
@@ -26,53 +24,48 @@ const getPokemonsListeDb = async (page = 1, type = null) => {
     let params = [];
 
     if (type) {
-        requete += ` WHERE type_primaire = ? OR type_secondaire = ?`;
+        requete += ` WHERE type_primaire = $1 OR type_secondaire = $2`;
         params.push(type, type); 
     }
 
-    requete += ` LIMIT ? OFFSET ?`;
+    requete += ` LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
     params.push(Number(elementsParPage), Number(offset));
 
     try {
-        const [resultats] = await pool.query(requete, params);
-
-        return resultats; 
+        const resultats = await pool.query(requete, params);
+        return resultats.rows; 
     } catch (erreur) {
-        console.error(`Erreur SQL [getPokemonsListeDb]: ${erreur.sqlMessage}`);
-        console.log("DÉBUG ERREUR :", erreur);
+        console.error(`Erreur SQL [getPokemonsListeDb]: ${erreur.message}`);
         throw erreur;
     }
 };
 
-function addPokemonDb(nom, type_primaire, type_secondaire, attaque, defense, pv) {
-    const requete = `INSERT INTO pokemon (nom, type_primaire, type_secondaire, attaque, defense, pv) VALUES (?, ?, ?, ?, ?, ?)`;
+async function addPokemonDb(nom, type_primaire, type_secondaire, attaque, defense, pv) {
+    const requete = `INSERT INTO pokemon (nom, type_primaire, type_secondaire, attaque, defense, pv) VALUES ($1, $2, $3, $4, $5, $6)`;
     const params = [nom, type_primaire, type_secondaire, attaque, defense, pv];
-    pool.query(requete, params);
+    await pool.query(requete, params);
 }
 
-function addUserDb(nom, email, mdp, uuid) {
-    const requete = `INSERT INTO users (nom, email, mot_de_passe, uuid) VALUES (?, ?, ?, ?)`;
+async function addUserDb(nom, email, mdp, uuid) {
+    const requete = `INSERT INTO users (nom, email, mot_de_passe, uuid) VALUES ($1, $2, $3, $4)`;
     const params = [nom, email, mdp, uuid];
-    pool.query(requete, params);
+    await pool.query(requete, params);
 }
 
 const getPokemonsFromDb = async () => {
     const requete = `SELECT nom FROM public.pokemon`;
     try {
-        var liste = [];
         const resultats = await pool.query(requete);
-        resultats.forEach(resultat => {
-            liste.push({
-                nom: resultat.nom
-            });
-        });
-        console.log("Liste des salutations récupérées de la BD : OK");
+        // Utilisation de .map pour plus de clarté
+        const liste = resultats.rows.map(row => ({
+            nom: row.nom
+        }));
         
+        console.log("Liste des pokémons récupérés de la BD : OK");
         return liste;
     } 
     catch (erreur) {
-        console.log(`Erreur, code: ${erreur.code} sqlState ${erreur.sqlState} : 
-                    ${erreur.sqlMessage}`);
+        console.error(`Erreur PostgreSQL : ${erreur.message}`);
         throw erreur;
     }
 };
