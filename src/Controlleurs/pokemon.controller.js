@@ -27,7 +27,7 @@ export const getPokemons = async (req, res) => {
         const listePokemon = await getPokemonsFromDb();
             res.status(200).json({listePokemon});
     } catch (error) {
-        res.status(500).json({ error: "Erreur lors de la récupération" });
+        res.status(500).json({ error: "Erreur lors de la récupération" + error });
     }
 };
 
